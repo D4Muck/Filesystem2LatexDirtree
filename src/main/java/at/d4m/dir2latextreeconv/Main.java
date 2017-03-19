@@ -13,6 +13,7 @@ public class Main {
     public static void main(String[] args) {
         Options options = new Options();
         options.addRequiredOption("d", "dir", true, "input directory");
+        options.addOption("e", "exclude", true, "exclude regex");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine line;
@@ -34,13 +35,10 @@ public class Main {
             return;
         }
 
+        String excludeRegex = line.getOptionValue('e') != null ? line.getOptionValue('e') : "";
+
         StringBuilder builder = new StringBuilder();
-        getDirtree(directory, builder, 1, new FilenameFilter() {
-            @Override
-            public boolean accept(File file, String name) {
-                return !name.matches("node_modules|platforms");
-            }
-        });
+        getDirtree(directory, builder, 1, (file, name) -> !name.matches(excludeRegex));
         System.out.print("\\dirtree{%");
         System.out.println(builder.toString());
         System.out.print("}");
